@@ -251,7 +251,7 @@ func register(user string, pass string) int64 {
 }
 
 func getEntryByKeyword(kw string) (Entry, error) {
-	row := db.QueryRow(`SELECT * FROM entry WHERE keyword = ?`, keyword)
+	row := db.QueryRow(`SELECT * FROM entry WHERE keyword = ?`, kw)
 	e := Entry{}
 	err := row.Scan(&e.ID, &e.AuthorID, &e.Keyword, &e.Description, &e.UpdatedAt, &e.CreatedAt)
 	return e, err
