@@ -330,7 +330,7 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 		keywords = append(keywords, regexp.QuoteMeta(entry.Keyword))
 	}
 	// (k1|k2|k3|k4...|kn)
-	re := regexp.MustCompile("(" + strings.Join(keywords, "|") + ")")
+	// re := regexp.MustCompile("(" + strings.Join(keywords, "|") + ")")
 	pairList := make([]string, 0, 1000)
 	kw2sha := make(map[string]string)
 	for i, kw := range keywords {
