@@ -13,7 +13,7 @@ const (
 func setEntryNumToRedis(num int64) error {
 	conn := redisPool.Get()
 	defer conn.Close()
-	_, err := conn.Do("SET", entryNumKey, strconv.FormatInt(lastID, 10))
+	_, err := conn.Do("SET", entryNumKey, strconv.FormatInt(num, 10))
 	return err
 }
 
@@ -29,7 +29,7 @@ func incEntryNum() {
 	defer conn.Close()
 	num, err := redis.Int64(conn.Do("GET", entryNumKey))
 	panicIf(err)
-	_, err := conn.Do("SET", entryNumKey, strconv.FormatInt(num+1, 10))
+	_, err = conn.Do("SET", entryNumKey, strconv.FormatInt(num+1, 10))
 	panicIf(err)
 }
 
@@ -38,6 +38,6 @@ func decEntryNum() {
 	defer conn.Close()
 	num, err := redis.Int64(conn.Do("GET", entryNumKey))
 	panicIf(err)
-	_, err := conn.Do("SET", entryNumKey, strconv.FormatInt(num-1, 10))
+	_, err = conn.Do("SET", entryNumKey, strconv.FormatInt(num-1, 10))
 	panicIf(err)
 }
