@@ -350,7 +350,7 @@ func loadStars(keyword string) []*Star {
 	rows, err := db.Query(`SELECT * FROM star WHERE keyword = ?`, keyword)
 	if err != nil && err != sql.ErrNoRows {
 		panicIf(err)
-		return
+		return nil
 	}
 
 	stars := make([]*Star, 0, 10)
