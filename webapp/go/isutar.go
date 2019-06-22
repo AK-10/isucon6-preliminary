@@ -43,7 +43,7 @@ func starsHandler(w http.ResponseWriter, r *http.Request) {
 func starsPostHandler(w http.ResponseWriter, r *http.Request) {
 	keyword := r.FormValue("keyword")
 
-	e, err := getEntryByKeyword(keyword)
+	_, err := getEntryByKeyword(keyword)
 	if err == sql.ErrNoRows {
 		notFound(w)
 		return
