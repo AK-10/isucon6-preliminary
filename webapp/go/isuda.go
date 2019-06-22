@@ -87,8 +87,8 @@ func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	panicIf(err)
 	err = initializeStar()
 	panicIf(err)
-	initEntries()
-
+	err = initEntries()
+	panicIf(err)
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
 }
 
