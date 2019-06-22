@@ -8,7 +8,7 @@ deps:
 	go get github.com/unrolled/render
 
 merged: deps
-	go build -o isuda isuda.go isutar.go type.go util.go
+	go build -o isuda isuda.go star.go type.go util.go
 
 isuda: deps
 	go build -o isuda isuda.go type.go util.go
