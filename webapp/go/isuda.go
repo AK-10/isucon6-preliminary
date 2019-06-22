@@ -106,7 +106,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query(
 		"SELECT * FROM entry ORDER BY updated_at DESC LIMIT ? OFFSET ?",
 		perPage, perPage*(page-1),
-	))
+	)
 
 	if err != nil && err != sql.ErrNoRows {
 		panicIf(err)
