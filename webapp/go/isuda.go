@@ -285,7 +285,7 @@ func initEntries() error {
 
 	for rows.Next() {
 		var e Entry
-		err := rows.Scan(&e.id, &e.Keyword)
+		err := rows.Scan(&e.ID, &e.Keyword)
 		if err != nil {
 			return err
 		}
