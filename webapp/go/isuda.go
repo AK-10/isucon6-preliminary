@@ -362,13 +362,13 @@ func loadStars(keyword string) []*Star {
 	}
 	rows.Close()
 
-	var data struct {
-		Result []*Star `json:result`
-	}
-	data.Result = stars
-	err = json.NewDecoder(resp.Body).Decode(&data)
-	panicIf(err)
-	return data.Result
+	// var data struct {
+	// 	Result []*Star `json:result`
+	// }
+	// data.Result = stars
+	// err = json.NewDecoder(resp.Body).Decode(&data)
+	// panicIf(err)
+	return stars
 }
 
 func isSpamContents(content string) bool {
