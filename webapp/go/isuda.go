@@ -338,7 +338,7 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 		kw2sha[kw] = value
 		pairList[i*2], pairList[i*2+1] = kw, value
 	}
-	rs := strings.NewReplacer(pairList)
+	rs := strings.NewReplacer(pairList...)
 	content = rs.Replace(content)
 	// kw2sha := make(map[string]string)
 	// content = re.ReplaceAllStringFunc(content, func(kw string) string {
