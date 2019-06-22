@@ -346,13 +346,26 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 func loadStars(keyword string) []*Star {
 	v := url.Values{}
 	v.Set("keyword", keyword)
-	resp, err := http.Get(fmt.Sprintf("%s/stars", isutarEndpoint) + "?" + v.Encode())
-	panicIf(err)
-	defer resp.Body.Close()
+
+	rows, err := db.Query(`SELECT * FROM star WHERE keyword = ?`, keyword)
+	if err != nil && err != sql.ErrNoRows {
+		panicIf(err)
+		return
+	}
+
+	stars := make([]*Star, 0, 10)
+	for rows.Next() {
+		s := Star{}
+		err := rows.Scan(&s.ID, &s.Keyword, &s.UserName, &s.CreatedAt)
+		panicIf(err)
+		stars = append(stars, &s)
+	}
+	rows.Close()
 
 	var data struct {
 		Result []*Star `json:result`
 	}
+	data.Result = stars
 	err = json.NewDecoder(resp.Body).Decode(&data)
 	panicIf(err)
 	return data.Result
