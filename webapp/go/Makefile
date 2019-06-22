@@ -6,7 +6,7 @@ deps:
 	go get github.com/gorilla/sessions
 	go get github.com/Songmu/strrand
 	go get github.com/unrolled/render
-
+	go get github.com/gomodule/redigo/redis
 merged: deps
 	go build -o isuda isuda.go star.go type.go util.go
 
