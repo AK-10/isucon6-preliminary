@@ -250,6 +250,13 @@ func register(user string, pass string) int64 {
 	return lastInsertID
 }
 
+func getEntryByKeyword(kw string) (Entry, error) {
+	row := db.QueryRow(`SELECT * FROM entry WHERE keyword = ?`, keyword)
+	e := Entry{}
+	err := row.Scan(&e.ID, &e.AuthorID, &e.Keyword, &e.Description, &e.UpdatedAt, &e.CreatedAt)
+	return e, err
+}
+
 func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 	if err := setName(w, r); err != nil {
 		forbidden(w)
@@ -257,9 +264,8 @@ func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	keyword, _ := url.QueryUnescape(mux.Vars(r)["keyword"])
-	row := db.QueryRow(`SELECT * FROM entry WHERE keyword = ?`, keyword)
-	e := Entry{}
-	err := row.Scan(&e.ID, &e.AuthorID, &e.Keyword, &e.Description, &e.UpdatedAt, &e.CreatedAt)
+
+	e, err := getEntryByKeyword(keyword)
 	if err == sql.ErrNoRows {
 		notFound(w)
 		return
