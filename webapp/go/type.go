@@ -6,12 +6,13 @@ import (
 )
 
 type Entry struct {
-	ID          int
-	AuthorID    int
-	Keyword     string
-	Description string
-	UpdatedAt   time.Time
-	CreatedAt   time.Time
+	ID            int
+	AuthorID      int
+	Keyword       string
+	Description   string
+	UpdatedAt     time.Time
+	CreatedAt     time.Time
+	KeywordLength int64
 
 	Html  string
 	Stars []*Star
@@ -26,11 +27,10 @@ type User struct {
 }
 
 type Star struct {
-	ID            int       `json:"id"`
-	Keyword       string    `json:"keyword"`
-	UserName      string    `json:"user_name"`
-	CreatedAt     time.Time `json:"created_at"`
-	KeywordLength int64
+	ID        int       `json:"id"`
+	Keyword   string    `json:"keyword"`
+	UserName  string    `json:"user_name"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type EntryWithCtx struct {

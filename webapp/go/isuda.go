@@ -378,24 +378,22 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 		return ""
 	}
 	rows, err := db.Query(`
-		SELECT * FROM entry ORDER BY keyword_length DESC
+		SELECT keyword FROM entry ORDER BY keyword_length DESC
 	`)
 	panicIf(err)
-	entries := make([]*Entry, 0, 500)
+	keywords := make([]string, 0, 500)
 	for rows.Next() {
-		e := Entry{}
-		err := rows.Scan(&e.ID, &e.AuthorID, &e.Keyword, &e.Description, &e.UpdatedAt, &e.CreatedAt, &e.KeywordLength)
+		var kw string
+		err := rows.Scan(&kw)
 		panicIf(err)
-		entries = append(entries, &e)
+		kw = regexp.QuoteMeta(kw)
+		keywords = append(keywords, kw)
 	}
 	rows.Close()
 
-	keywords := make([]string, 0, 500)
 	var pairList []string
 	kw2sha := make(map[string]string)
-	for _, entry := range entries {
-		kw := regexp.QuoteMeta(entry.Keyword)
-		keywords = append(keywords, kw)
+	for _, kw := range keywords {
 		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
 		pairList = append(pairList, kw)
 		pairList = append(pairList, kw2sha[kw])
