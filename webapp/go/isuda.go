@@ -330,21 +330,24 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 		keywords = append(keywords, regexp.QuoteMeta(entry.Keyword))
 	}
 	// (k1|k2|k3|k4...|kn)
-	re := regexp.MustCompile("(" + strings.Join(keywords, "|") + ")")
-	// pairList := make([]string, 0, 1000)
-	// kw2sha := make(map[string]string)
-	// for i, kw := range keywords {
-	// 	value := "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
-	// 	kw2sha[kw] = value
-	// 	pairList[i*2], pairList[i*2+1] = kw, value
-	// }
-	// rs := strings.NewReplacer(pairList...)
-	// content = rs.Replace(content)
+	var pairList []string
 	kw2sha := make(map[string]string)
-	content = re.ReplaceAllStringFunc(content, func(kw string) string {
+	for _, kw := range keywords {
 		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
-		return kw2sha[kw]
-	})
+		pairList = append(pairList, kw)
+		pairList = append(pairList, kw2sha[kw])
+	}
+	rs := strings.NewReplacer(pairList...)
+	content = rs.Replace(content)
+
+	// content = rs.Replace(content)
+	// re := regexp.MustCompile("(" + strings.Join(keywords, "|") + ")")
+	// kw2sha := make(map[string]string)
+	// contentに含まれるreのkeywordをisuda__***に変える
+	// content = re.ReplaceAllStringFunc(content, func(kw string) string {
+	// 	kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
+	// 	return kw2sha[kw]
+	// })
 	content = html.EscapeString(content)
 	for kw, hash := range kw2sha {
 		u, err := r.URL.Parse(baseUrl.String() + "/keyword/" + pathURIEscape(kw))
@@ -373,13 +376,6 @@ func loadStars(keyword string) []*Star {
 		stars = append(stars, &s)
 	}
 	rows.Close()
-
-	// var data struct {
-	// 	Result []*Star `json:result`
-	// }
-	// data.Result = stars
-	// err = json.NewDecoder(resp.Body).Decode(&data)
-	// panicIf(err)
 	return stars
 }
 
