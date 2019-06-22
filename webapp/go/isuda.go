@@ -17,12 +17,15 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Songmu/strrand"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 	"github.com/unrolled/render"
+
+	"github.com/gomodule/redigo/redis"
 )
 
 const (
@@ -38,6 +41,13 @@ var (
 	db      *sql.DB
 	re      *render.Render
 	store   *sessions.CookieStore
+
+	redisPool = &redis.Pool{
+		MaxIdle:     3,
+		MaxActive:   0,
+		IdleTimeout: 5 * time.Minute,
+		Dial:        func() (redis.Conn, error) { return redis.Dial("tcp", "127.0.0.1:6379") },
+	}
 
 	errInvalidUser = errors.New("Invalid User")
 )
@@ -71,6 +81,8 @@ func authenticate(w http.ResponseWriter, r *http.Request) error {
 
 func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := db.Exec(`DELETE FROM entry WHERE id > 7101`)
+	panicIf(err)
+	err = setEntryNumToRedis(7101)
 	panicIf(err)
 	err = initializeStar()
 	panicIf(err)
@@ -109,10 +121,14 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	rows.Close()
 
-	var totalEntries int
-	row := db.QueryRow(`SELECT COUNT(*) FROM entry`)
-	err = row.Scan(&totalEntries)
-	if err != nil && err != sql.ErrNoRows {
+	// var totalEntries int
+	// row := db.QueryRow(`SELECT COUNT(*) FROM entry`)
+	// err = row.Scan(&totalEntries)
+	// if err != nil && err != sql.ErrNoRows {
+	// 	panicIf(err)
+	// }
+	totalEntries, err := getEntryNumFromRedis()
+	if err != nil {
 		panicIf(err)
 	}
 
@@ -161,13 +177,26 @@ func keywordPostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "SPAM!", http.StatusBadRequest)
 		return
 	}
+
+	tx, err := db.Begin()
+	panicIf(err)
+
 	_, err := db.Exec(`
 		INSERT INTO entry (author_id, keyword, description, created_at, updated_at)
 		VALUES (?, ?, ?, NOW(), NOW())
 		ON DUPLICATE KEY UPDATE
 		author_id = ?, keyword = ?, description = ?, updated_at = NOW()
 	`, userID, keyword, description, userID, keyword, description)
-	panicIf(err)
+	if err != nil {
+		tx.Rollback()
+	}
+	if err = tx.Commit(); err != nil {
+		tx.Rollback()
+		panicIf(err)
+	} else {
+		incEntryNum()
+	}
+
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
@@ -303,8 +332,21 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		notFound(w)
 		return
 	}
-	_, err = db.Exec(`DELETE FROM entry WHERE keyword = ?`, keyword)
+	tx, err := db.Begin()
 	panicIf(err)
+
+	_, err = db.Exec(`DELETE FROM entry WHERE keyword = ?`, keyword)
+	if err != nil {
+		tx.Rollback()
+		panicIf(err)
+	}
+	if err = tx.Commit(); err != nil {
+		tx.Rollback()
+		panicIf(err)
+	} else {
+		decEntryNum()
+	}
+
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
