@@ -103,10 +103,11 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	page, _ := strconv.Atoi(p)
 
-	rows, err := db.Query(fmt.Sprintf(
-		"SELECT * FROM entry ORDER BY updated_at DESC LIMIT %d OFFSET %d",
+	rows, err := db.Query(
+		"SELECT * FROM entry ORDER BY updated_at DESC LIMIT ? OFFSET ?",
 		perPage, perPage*(page-1),
 	))
+
 	if err != nil && err != sql.ErrNoRows {
 		panicIf(err)
 	}
@@ -368,12 +369,11 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 	rows.Close()
 
 	keywords := make([]string, 0, 500)
-	for _, entry := range entries {
-		keywords = append(keywords, regexp.QuoteMeta(entry.Keyword))
-	}
 	var pairList []string
 	kw2sha := make(map[string]string)
-	for _, kw := range keywords {
+	for _, entry := range entries {
+		kw := regexp.QuoteMeta(entry.Keyword)
+		keywords = append(keywords, kw)
 		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
 		pairList = append(pairList, kw)
 		pairList = append(pairList, kw2sha[kw])
@@ -388,27 +388,6 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 		content = strings.Replace(content, hash, link, -1)
 	}
 	return strings.Replace(content, "\n", "<br />\n", -1)
-}
-
-func loadStars(keyword string) []*Star {
-	v := url.Values{}
-	v.Set("keyword", keyword)
-
-	rows, err := db.Query(`SELECT * FROM star WHERE keyword = ?`, keyword)
-	if err != nil && err != sql.ErrNoRows {
-		panicIf(err)
-		return nil
-	}
-
-	stars := make([]*Star, 0, 10)
-	for rows.Next() {
-		s := Star{}
-		err := rows.Scan(&s.ID, &s.Keyword, &s.UserName, &s.CreatedAt)
-		panicIf(err)
-		stars = append(stars, &s)
-	}
-	rows.Close()
-	return stars
 }
 
 func isSpamContents(content string) bool {
