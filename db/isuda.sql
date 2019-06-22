@@ -4,7 +4,8 @@ CREATE TABLE entry (
     keyword VARCHAR(191) UNIQUE,
     description MEDIUMTEXT,
     updated_at DATETIME NOT NULL,
-    created_at DATETIME NOT NULL
+    created_at DATETIME NOT NULL, 
+    KEY update_at_idx(updated_at)
 ) Engine=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE user (
