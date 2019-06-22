@@ -86,6 +86,7 @@ func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	panicIf(err)
 	err = initializeStar()
 	panicIf(err)
+	initEntries()
 
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
 }
@@ -276,6 +277,26 @@ func register(user string, pass string) int64 {
 	return lastInsertID
 }
 
+func initEntries() error {
+	rows, err := db.Query("SELECT id, keyword FROM entry")
+	if err != nil {
+		return err
+	}
+
+	for rows.Next() {
+		var e Entry
+		err := rows.Scan(&e.id, &e.Keyword)
+		if err != nil {
+			return err
+		}
+		_, err = db.Exec("UPDATE entry SET keyword_length = ? WHERE id = ?", int64(len(e.Keyword)), e.ID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func getEntryByKeyword(kw string) (Entry, error) {
 	row := db.QueryRow(`SELECT * FROM entry WHERE keyword = ?`, kw)
 	e := Entry{}
@@ -356,7 +377,7 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 		return ""
 	}
 	rows, err := db.Query(`
-		SELECT * FROM entry ORDER BY CHARACTER_LENGTH(keyword) DESC
+		SELECT * FROM entry ORDER BY keyword_length DESC
 	`)
 	panicIf(err)
 	entries := make([]*Entry, 0, 500)

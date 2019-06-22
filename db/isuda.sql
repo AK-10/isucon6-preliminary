@@ -5,7 +5,9 @@ CREATE TABLE entry (
     description MEDIUMTEXT,
     updated_at DATETIME NOT NULL,
     created_at DATETIME NOT NULL, 
-    KEY update_at_idx(updated_at)
+    keyword_length INT NOT NULL DEFAULT 0,
+    KEY update_at_idx(updated_at),
+    KEY keyword_length_idx(keyword_length)
 ) Engine=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 CREATE TABLE user (
