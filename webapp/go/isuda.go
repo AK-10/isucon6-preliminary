@@ -329,7 +329,6 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 	for _, entry := range entries {
 		keywords = append(keywords, regexp.QuoteMeta(entry.Keyword))
 	}
-	// (k1|k2|k3|k4...|kn)
 	var pairList []string
 	kw2sha := make(map[string]string)
 	for _, kw := range keywords {
@@ -339,15 +338,6 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 	}
 	rs := strings.NewReplacer(pairList...)
 	content = rs.Replace(content)
-
-	// content = rs.Replace(content)
-	// re := regexp.MustCompile("(" + strings.Join(keywords, "|") + ")")
-	// kw2sha := make(map[string]string)
-	// contentに含まれるreのkeywordをisuda__***に変える
-	// content = re.ReplaceAllStringFunc(content, func(kw string) string {
-	// 	kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
-	// 	return kw2sha[kw]
-	// })
 	content = html.EscapeString(content)
 	for kw, hash := range kw2sha {
 		u, err := r.URL.Parse(baseUrl.String() + "/keyword/" + pathURIEscape(kw))
