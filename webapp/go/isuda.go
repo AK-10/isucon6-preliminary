@@ -18,6 +18,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Songmu/strrand"
 	_ "github.com/go-sql-driver/mysql"
@@ -289,7 +290,7 @@ func initEntries() error {
 		if err != nil {
 			return err
 		}
-		_, err = db.Exec("UPDATE entry SET keyword_length = ? WHERE id = ?", int64(len(e.Keyword)), e.ID)
+		_, err = db.Exec("UPDATE entry SET keyword_length = ? WHERE id = ?", int64(utf8.RuneCountInString(e.Keyword)), e.ID)
 		if err != nil {
 			return err
 		}
