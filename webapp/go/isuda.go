@@ -254,7 +254,7 @@ func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	keyword := mux.Vars(r)["keyword"]
+	keyword, _ := url.QueryUnescape(mux.Vars(r)["keyword"])
 	row := db.QueryRow(`SELECT * FROM entry WHERE keyword = ?`, keyword)
 	e := Entry{}
 	err := row.Scan(&e.ID, &e.AuthorID, &e.Keyword, &e.Description, &e.UpdatedAt, &e.CreatedAt)
