@@ -26,10 +26,11 @@ type User struct {
 }
 
 type Star struct {
-	ID        int       `json:"id"`
-	Keyword   string    `json:"keyword"`
-	UserName  string    `json:"user_name"`
-	CreatedAt time.Time `json:"created_at"`
+	ID            int       `json:"id"`
+	Keyword       string    `json:"keyword"`
+	UserName      string    `json:"user_name"`
+	CreatedAt     time.Time `json:"created_at"`
+	KeywordLength int64
 }
 
 type EntryWithCtx struct {
