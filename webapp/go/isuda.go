@@ -335,7 +335,8 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 	for i, kw := range keywords {
 		pairList[i*2], pairList[i*2+1] = kw, "isuda_"+fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
 	}
-	content = strings.NewReplacer(pairList...)
+	rs := strings.NewReplacer(pairList)
+	content = rs.Replace(content)
 	// kw2sha := make(map[string]string)
 	// content = re.ReplaceAllStringFunc(content, func(kw string) string {
 	// 	kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
