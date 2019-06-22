@@ -334,7 +334,7 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
 	pairList := make([]string, 0, 1000)
 	kw2sha := make(map[string]string)
 	for i, kw := range keywords {
-		value = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
+		value := "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
 		kw2sha[kw] = value
 		pairList[i*2], pairList[i*2+1] = kw, value
 	}
