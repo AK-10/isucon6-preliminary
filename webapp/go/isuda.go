@@ -137,10 +137,18 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		e := Entry{}
 		err := rows.Scan(&e.ID, &e.AuthorID, &e.Keyword, &e.Description, &e.UpdatedAt, &e.CreatedAt, &e.KeywordLength)
 		panicIf(err)
-		e.Html = htmlify(w, r, e.Description, keywords)
+		html, err := getHTMLOfEntryfromRedis(e.Keyword)
+		if err == Redis.ErrNil {
+			html = htmlify(w, r, e.Description, keywords)
+			err = setHTMLOfEntryToRedis(html)
+			panicIf(err)
+		}
+		panicIf(err)
+		e.Html = html
 		e.Stars = loadStars(e.Keyword)
 		entries = append(entries, &e)
 	}
+
 	rows.Close()
 
 	// var totalEntries int
@@ -339,7 +347,14 @@ func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	keywords := getKeywordsByDesc()
-	e.Html = htmlify(w, r, e.Description, keywords)
+	html, err := getHTMLOfEntryfromRedis(e.Keyword)
+	if err == Redis.ErrNil {
+		html = htmlify(w, r, e.Description, keywords)
+		err = setHTMLOfEntryToRedis(html)
+		panicIf(err)
+	}
+	panicIf(err)
+	e.Html = html
 	e.Stars = loadStars(e.Keyword)
 
 	re.HTML(w, http.StatusOK, "keyword", struct {
@@ -417,6 +432,7 @@ func htmlify(w http.ResponseWriter, r *http.Request, content string, keywords []
 		link := fmt.Sprintf("<a href=\"%s\">%s</a>", u, html.EscapeString(kw))
 		content = strings.Replace(content, hash, link, -1)
 	}
+
 	return strings.Replace(content, "\n", "<br />\n", -1)
 }
 

@@ -7,8 +7,27 @@ import (
 )
 
 const (
-	entryNumKey = "entryNum"
+	entryNumKey = "entryNum",
+	htmlKeyPrefix = "HTML-OF-"
 )
+
+func setHTMLOfEntryToRedis(keyword string) error {
+	conn := redisPool.Get()
+	defer conn.Close()
+	key := htmlKeyPrefix + keyword
+	_, err := conn.Do("SET", key, strconv.FormatInt(num, 10))
+	return err
+}
+
+func getHTMLOfEntryfromRedis(keyword string) (string, error) {
+	conn := redisPool.Get()
+	defer conn.Close()
+
+	key := htmlKeyPrefix + keyword
+
+	num, err := redis.Int64(conn.Do("GET", key))
+	return num, err
+}
 
 func setEntryNumToRedis(num int64) error {
 	conn := redisPool.Get()
