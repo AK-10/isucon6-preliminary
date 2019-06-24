@@ -11,11 +11,11 @@ const (
 	htmlKeyPrefix = "HTML-OF-"
 )
 
-func setHTMLOfEntryToRedis(keyword string) error {
+func setHTMLOfEntryToRedis(keyword string, html string) error {
 	conn := redisPool.Get()
 	defer conn.Close()
 	key := htmlKeyPrefix + keyword
-	_, err := conn.Do("SET", key, strconv.FormatInt(num, 10))
+	_, err := conn.Do("SET", key, html)
 	return err
 }
 

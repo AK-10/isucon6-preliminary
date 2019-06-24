@@ -140,7 +140,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		html, err := getHTMLOfEntryfromRedis(e.Keyword)
 		if err == Redis.ErrNil {
 			html = htmlify(w, r, e.Description, keywords)
-			err = setHTMLOfEntryToRedis(html)
+			err = setHTMLOfEntryToRedis(e.Keyword, html)
 			panicIf(err)
 		}
 		panicIf(err)
@@ -350,7 +350,7 @@ func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 	html, err := getHTMLOfEntryfromRedis(e.Keyword)
 	if err == Redis.ErrNil {
 		html = htmlify(w, r, e.Description, keywords)
-		err = setHTMLOfEntryToRedis(html)
+		err = setHTMLOfEntryToRedis(e.Keyword, html)
 		panicIf(err)
 	}
 	panicIf(err)
