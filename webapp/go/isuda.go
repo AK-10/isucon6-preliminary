@@ -89,8 +89,24 @@ func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	// panicIf(err)
 	err = initEntries()
 	// panicIf(err)
-	println("initialize")
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
+}
+
+func getKeywordsByDesc() []string {
+	rows, err := db.Query(`
+		SELECT keyword FROM entry ORDER BY keyword_length DESC
+	`)
+	panicIf(err)
+
+	var kws []string
+	for rows.Next() {
+		var kw string
+		err := rows.Scan(&kw)
+		panicIf(err)
+		kws = append(kws, kw)
+	}
+	defer rows.Close()
+	return kws
 }
 
 func topHandler(w http.ResponseWriter, r *http.Request) {
@@ -98,6 +114,8 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		forbidden(w)
 		return
 	}
+
+	keywords = getKeywordsByDesc()
 
 	perPage := 10
 	p := r.URL.Query().Get("page")
@@ -119,7 +137,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		e := Entry{}
 		err := rows.Scan(&e.ID, &e.AuthorID, &e.Keyword, &e.Description, &e.UpdatedAt, &e.CreatedAt, &e.KeywordLength)
 		panicIf(err)
-		e.Html = htmlify(w, r, e.Description)
+		e.Html = htmlify(w, r, e.Description, keywords)
 		e.Stars = loadStars(e.Keyword)
 		entries = append(entries, &e)
 	}
@@ -319,7 +337,9 @@ func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 		notFound(w)
 		return
 	}
-	e.Html = htmlify(w, r, e.Description)
+
+	keywords = getKeywordsByDesc()
+	e.Html = htmlify(w, r, e.Description, keywords)
 	e.Stars = loadStars(e.Keyword)
 
 	re.HTML(w, http.StatusOK, "keyword", struct {
@@ -374,30 +394,19 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func htmlify(w http.ResponseWriter, r *http.Request, content string) string {
+func htmlify(w http.ResponseWriter, r *http.Request, content string, keywords []string) string {
 	if content == "" {
 		return ""
 	}
-	rows, err := db.Query(`
-		SELECT keyword FROM entry ORDER BY keyword_length DESC
-	`)
-	panicIf(err)
-	keywords := make([]string, 0, 500)
-	for rows.Next() {
-		var kw string
-		err := rows.Scan(&kw)
-		panicIf(err)
-		kw = regexp.QuoteMeta(kw)
-		keywords = append(keywords, kw)
-	}
-	rows.Close()
 
 	var pairList []string
 	kw2sha := make(map[string]string)
 	for _, kw := range keywords {
+		kw = regexp.QuoteMeta(kw)
 		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
 		pairList = append(pairList, kw)
 		pairList = append(pairList, kw2sha[kw])
+		// keywords = append(keywords, kw)
 	}
 	rs := strings.NewReplacer(pairList...)
 	content = rs.Replace(content)
