@@ -84,11 +84,12 @@ func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := db.Exec(`DELETE FROM entry WHERE id > 7101`)
 	panicIf(err)
 	err = setEntryNumToRedis(7101)
-	panicIf(err)
+	// panicIf(err)
 	err = initializeStar()
-	panicIf(err)
+	// panicIf(err)
 	err = initEntries()
-	panicIf(err)
+	// panicIf(err)
+	println("initialize")
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
 }
 
