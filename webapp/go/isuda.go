@@ -385,7 +385,7 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		panicIf(err)
 	}
 	if err = tx.Commit(); err != nil {
-		tx.Rollback
+		tx.Rollback()
 		panicIf(err)
 	} else {
 		decEntryNum()
