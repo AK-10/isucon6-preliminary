@@ -115,7 +115,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	keywords = getKeywordsByDesc()
+	keywords := getKeywordsByDesc()
 
 	perPage := 10
 	p := r.URL.Query().Get("page")
@@ -338,7 +338,7 @@ func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	keywords = getKeywordsByDesc()
+	keywords := getKeywordsByDesc()
 	e.Html = htmlify(w, r, e.Description, keywords)
 	e.Stars = loadStars(e.Keyword)
 
@@ -385,7 +385,7 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		panicIf(err)
 	}
 	if err = tx.Commit(); err != nil {
-		tx.Rollback()
+		tx.Rollback
 		panicIf(err)
 	} else {
 		decEntryNum()
