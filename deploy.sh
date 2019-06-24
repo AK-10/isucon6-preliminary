@@ -3,5 +3,5 @@ make
 sudo systemctl restart nginx
 sudo systemctl restart isuda.go
 cd ~/isucon6q
-jq < ./isucon6q-bench
+./isucon6q-bench
 cd ~
