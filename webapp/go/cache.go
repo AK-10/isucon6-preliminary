@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	entryNumKey = "entryNum",
+	entryNumKey   = "entryNum"
 	htmlKeyPrefix = "HTML-OF-"
 )
 
