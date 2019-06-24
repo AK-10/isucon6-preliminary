@@ -26,7 +26,7 @@ func getHTMLOfEntryfromRedis(keyword string) (string, error) {
 	key := htmlKeyPrefix + keyword
 
 	html, err := redis.String(conn.Do("GET", key))
-	return num, html
+	return html, err
 }
 
 func setEntryNumToRedis(num int64) error {
