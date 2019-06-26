@@ -11,6 +11,25 @@ const (
 	htmlKeyPrefix = "HTML-OF-"
 )
 
+func flushAllHTML() error {
+	conn := redisPool.Get()
+	defer conn.Close()
+	entryNum, err := getEntryNumFromRedis()
+	if err != nil {
+		return err
+	}
+	_, err = conn.Do("FLUSHALL")
+	if err != nil {
+		return err
+	}
+
+	err = setEntryNumToRedis(entryNum)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func setHTMLOfEntryToRedis(keyword string, html string) error {
 	conn := redisPool.Get()
 	defer conn.Close()
