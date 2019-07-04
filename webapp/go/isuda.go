@@ -563,7 +563,7 @@ func main() {
 	k.Methods("POST").HandlerFunc(myHandler(keywordByKeywordDeleteHandler))
 
 	s := r.PathPrefix("/stars").Subrouter()
-	s.Methods("GET").HandlerFunc(myHandler(starsHandler))
+	// s.Methods("GET").HandlerFunc(myHandler(starsHandler))
 	s.Methods("POST").HandlerFunc(myHandler(starsPostHandler))
 
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
