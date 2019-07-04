@@ -218,8 +218,8 @@ func keywordPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tx, err := db.Begin()
-	panicIf(err)
+	// tx, err := db.Begin()
+	// panicIf(err)
 
 	_, err = db.Exec(`
 		INSERT INTO entry (author_id, keyword, description, created_at, updated_at)
