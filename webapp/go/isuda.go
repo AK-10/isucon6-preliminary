@@ -227,16 +227,18 @@ func keywordPostHandler(w http.ResponseWriter, r *http.Request) {
 		ON DUPLICATE KEY UPDATE
 		author_id = ?, keyword = ?, description = ?, updated_at = NOW()
 	`, userID, keyword, description, userID, keyword, description)
-	if err != nil {
-		tx.Rollback()
-	}
-	if err = tx.Commit(); err != nil {
-		tx.Rollback()
-		panicIf(err)
-	} else {
-		incEntryNum()
-		// flushAllHTML()
-	}
+	// if err != nil {
+	// 	tx.Rollback()
+	// }
+	// if err = tx.Commit(); err != nil {
+	// 	tx.Rollback()
+	// 	panicIf(err)
+	// } else {
+	// 	incEntryNum()
+	// 	// flushAllHTML()
+	// }
+	panicIf(err)
+	err = incEntryNum()
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
@@ -368,7 +370,8 @@ func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	panicIf(err)
 	e.Html = html
-	e.Stars = loadStars(e.Keyword)
+	e.Stars = loadStarsFromCache(e.Keyword)
+	// e.Stars = loadStars(e.Keyword)
 
 	re.HTML(w, http.StatusOK, "keyword", struct {
 		Context context.Context
