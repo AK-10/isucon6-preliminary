@@ -394,7 +394,7 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		panicIf(err)
 	} else {
 		decEntryNum()
-		updateReplacerWithDelete()
+		updateReplacerWithDelete(keyword)
 		// flushAllHTML()
 	}
 
