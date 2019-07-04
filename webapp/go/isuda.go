@@ -405,12 +405,15 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 func initReplacer() {
 	keywords := getKeywordsByDesc()
+	newKeywordPairList = make([]string, 0)
 	for _, kw := range keywords {
 		kw = regexp.QuoteMeta(kw)
 		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
-		keywordPairList = append(keywordPairList, kw)
-		keywordPairList = append(keywordPairList, kw2sha[kw])
+		newKeywordPairList = append(newKeywordPairList, kw)
+		newKeywordPairList = append(newKeywordPairList, kw2sha[kw])
 	}
+
+	keywordPairList = newKeywordPairList
 }
 
 func removePair(strs []string, search string) []string {
