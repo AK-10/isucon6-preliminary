@@ -92,7 +92,7 @@ func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	err = initEntries()
 	// panicIf(err)
 	initReplaceWordPairs()
-	println(len("Pairs num:", replaceWordPairs))
+	println("Pairs num:", len(replaceWordPairs))
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
 }
 
