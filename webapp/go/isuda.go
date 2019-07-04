@@ -405,7 +405,7 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 func initReplacer() {
 	keywords := getKeywordsByDesc()
-	newKeywordPairList = make([]string, 0)
+	newKeywordPairList := make([]string, 0)
 	for _, kw := range keywords {
 		kw = regexp.QuoteMeta(kw)
 		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
