@@ -86,9 +86,6 @@ func starsPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	user := r.FormValue("user")
 
-	tx, err := db.Begin()
-	panicIf(err)
-
 	_, err = db.Exec(`INSERT INTO star (keyword, user_name, created_at) VALUES (?, ?, NOW())`, keyword, user)
 	if err != nil {
 		tx.Rollback()
