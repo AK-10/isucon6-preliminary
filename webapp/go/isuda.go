@@ -53,7 +53,6 @@ var (
 
 	keywordPairList = make([]string, 0)
 	kw2sha          = make(map[string]string)
-	rs              = strings.NewReplacer(keywordPairList...)
 )
 
 func setName(w http.ResponseWriter, r *http.Request) error {
@@ -410,7 +409,6 @@ func initReplacer() {
 		keywordPairList = append(keywordPairList, kw)
 		keywordPairList = append(keywordPairList, kw2sha[kw])
 	}
-	rs = strings.NewReplacer(keywordPairList...)
 }
 
 func removePair(strs []string, search string) []string {
@@ -434,13 +432,13 @@ func updateReplacerWithPost(keyword string) {
 func updateReplacerWithDelete(keyword string) {
 	keywordPairList = removePair(keywordPairList, keyword)
 	delete(kw2sha, keyword)
-	rs = strings.NewReplacer(keywordPairList...)
 }
 
 func htmlify(w http.ResponseWriter, r *http.Request, content string, keywords []string) string {
 	if content == "" {
 		return ""
 	}
+	rs := strings.NewReplacer(keywordPairList...)
 	content = rs.Replace(content)
 	content = html.EscapeString(content)
 	for kw, hash := range kw2sha {
