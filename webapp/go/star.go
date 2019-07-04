@@ -24,7 +24,7 @@ func initializeStar() error {
 
 func loadStarsFromCache(keyword string) []*Star {
 	var stars []*Star
-	for i, s := range starCache {
+	for _, s := range starCache {
 		if s.Keyword == keyword {
 			stars = append(stars, &s)
 		}
