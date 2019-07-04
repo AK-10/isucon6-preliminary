@@ -153,7 +153,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		panicIf(err)
 		e.Html = html
 		// e.Stars = loadStars(e.Keyword)
-		e.Stars := loadStarsFromCache(e.Keyword)
+		e.Stars = loadStarsFromCache(e.Keyword)
 		// if len(stars) <= 0 {
 		// 	e.Stars = loadStars(e.Keyword)
 		// } else {
