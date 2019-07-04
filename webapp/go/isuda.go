@@ -411,6 +411,7 @@ func initReplacer() {
 		keywordPairList = append(keywordPairList, kw)
 		keywordPairList = append(keywordPairList, kw2sha[kw])
 	}
+	rs = strings.NewReplacer(keywordPairList)
 }
 
 func removePair(strs []string, search string) []string {
