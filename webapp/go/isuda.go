@@ -50,6 +50,9 @@ var (
 	}
 
 	errInvalidUser = errors.New("Invalid User")
+
+	replaceWordPairs = make([]string, 0)
+	kw2sha           = make(map[string]string)
 )
 
 func setName(w http.ResponseWriter, r *http.Request) error {
@@ -88,6 +91,7 @@ func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	// panicIf(err)
 	err = initEntries()
 	// panicIf(err)
+	initReplaceWordPairs()
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
 }
 
@@ -418,21 +422,22 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
+func initReplaceWordPairs() {
+	keywords := getKeywordsByDesc()
+	for _, kw := range keywords {
+		kw = regexp.QuoteMeta(kw)
+		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
+		replaceWordPairs = append(replaceWordPairs, kw)
+		replaceWordPairs = append(replaceWordPairs, kw2sha[kw])
+	}
+}
+
 func htmlify(w http.ResponseWriter, r *http.Request, content string, keywords []string) string {
 	if content == "" {
 		return ""
 	}
 
-	var pairList []string
-	kw2sha := make(map[string]string)
-	for _, kw := range keywords {
-		kw = regexp.QuoteMeta(kw)
-		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
-		pairList = append(pairList, kw)
-		pairList = append(pairList, kw2sha[kw])
-		// keywords = append(keywords, kw)
-	}
-	rs := strings.NewReplacer(pairList...)
+	rs := strings.NewReplacer(replaceWordPairs...)
 	content = rs.Replace(content)
 	content = html.EscapeString(content)
 	for kw, hash := range kw2sha {
