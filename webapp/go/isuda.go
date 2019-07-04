@@ -229,7 +229,7 @@ func keywordPostHandler(w http.ResponseWriter, r *http.Request) {
 	`, userID, keyword, description, userID, keyword, description)
 	if err == nil {
 		incEntryNum()
-		keywordCache = append(keywrod, keywordCache...)
+		keywordCache = append([]string{keyword}, keywordCache...)
 	}
 	panicIf(err)
 
