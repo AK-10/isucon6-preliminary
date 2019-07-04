@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"net/http"
-	"net/url"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -14,14 +13,28 @@ import (
 // 	re      *render.Render
 // )
 
+var (
+	stars []Star
+)
+
 func initializeStar() error {
 	_, err := db.Exec("TRUNCATE star")
 	return err
 }
 
+func loadStarsFromCache(keyword string) []*Star {
+	var stars []*Star
+	for i, s := range stars {
+		if s.Keyword == keyword {
+			stars = append(stars, &s)
+		}
+	}
+	return stars
+}
+
 func loadStars(keyword string) []*Star {
-	v := url.Values{}
-	v.Set("keyword", keyword)
+	// v := url.Values{}
+	// v.Set("keyword", keyword)
 
 	rows, err := db.Query(`SELECT * FROM star WHERE keyword = ?`, keyword)
 	if err != nil && err != sql.ErrNoRows {
@@ -85,6 +98,7 @@ func starsPostHandler(w http.ResponseWriter, r *http.Request) {
 		tx.Rollback()
 		panicIf(err)
 	}
+	stars = append(stars, Star{Keyword: keyword, UserName: user})
 
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
 }

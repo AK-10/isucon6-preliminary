@@ -9,6 +9,7 @@ import (
 const (
 	entryNumKey   = "entryNum"
 	htmlKeyPrefix = "HTML-OF-"
+	// starPrefix = "STAR-"
 )
 
 func flushAllHTML() error {
@@ -29,6 +30,8 @@ func flushAllHTML() error {
 	}
 	return nil
 }
+
+func setStarWith
 
 func setHTMLOfEntryToRedis(keyword string, html string) error {
 	conn := redisPool.Get()
