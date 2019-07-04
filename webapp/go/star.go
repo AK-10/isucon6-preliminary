@@ -14,7 +14,7 @@ import (
 // )
 
 var (
-	stars []Star
+	starCache []Star
 )
 
 func initializeStar() error {
@@ -24,7 +24,7 @@ func initializeStar() error {
 
 func loadStarsFromCache(keyword string) []*Star {
 	var stars []*Star
-	for i, s := range stars {
+	for i, s := range starCache {
 		if s.Keyword == keyword {
 			stars = append(stars, &s)
 		}
@@ -47,7 +47,7 @@ func loadStars(keyword string) []*Star {
 		s := Star{}
 		err := rows.Scan(&s.ID, &s.Keyword, &s.UserName, &s.CreatedAt)
 		panicIf(err)
-		stars = append(stars, &s)
+		stars = append(starCache, &s)
 	}
 	rows.Close()
 	return stars
@@ -98,7 +98,7 @@ func starsPostHandler(w http.ResponseWriter, r *http.Request) {
 		tx.Rollback()
 		panicIf(err)
 	}
-	stars = append(stars, Star{Keyword: keyword, UserName: user})
+	starCache = append(starCache, Star{Keyword: keyword, UserName: user})
 
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
 }
