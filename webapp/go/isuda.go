@@ -51,7 +51,7 @@ var (
 
 	errInvalidUser = errors.New("Invalid User")
 
-	keywordPairList = make([]string, 0)
+	keywordPairList []string
 	kw2sha          = make(map[string]string)
 )
 
