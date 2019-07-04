@@ -9,6 +9,7 @@ import (
 const (
 	entryNumKey   = "entryNum"
 	htmlKeyPrefix = "HTML-OF-"
+	// starPrefix = "STAR-"
 )
 
 func flushAllHTML() error {
