@@ -229,6 +229,7 @@ func keywordPostHandler(w http.ResponseWriter, r *http.Request) {
 		panicIf(err)
 	} else {
 		incEntryNum()
+		initReplacer()
 		// flushAllHTML()
 	}
 
@@ -394,8 +395,9 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		panicIf(err)
 	} else {
 		decEntryNum()
-		updateReplacerWithDelete(keyword)
 		// flushAllHTML()
+		updateReplacerWithDelete(keyword)
+
 	}
 
 	http.Redirect(w, r, "/", http.StatusFound)
