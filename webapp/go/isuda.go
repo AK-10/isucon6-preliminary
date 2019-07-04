@@ -18,7 +18,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/Songmu/strrand"
 	_ "github.com/go-sql-driver/mysql"
@@ -51,6 +50,10 @@ var (
 	}
 
 	errInvalidUser = errors.New("Invalid User")
+
+	keywordPairList = make([]string)
+	kw2sha          = make(map[string]string)
+	rs              = strings.NewReplacer(keywordPairList...)
 )
 
 func setName(w http.ResponseWriter, r *http.Request) error {
@@ -89,6 +92,7 @@ func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	// panicIf(err)
 	err = initEntries()
 	// panicIf(err)
+	initReplacer()
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
 }
 
@@ -307,23 +311,8 @@ func register(user string, pass string) int64 {
 }
 
 func initEntries() error {
-	rows, err := db.Query("SELECT id, keyword FROM entry")
-	if err != nil {
-		return err
-	}
-
-	for rows.Next() {
-		var e Entry
-		err := rows.Scan(&e.ID, &e.Keyword)
-		if err != nil {
-			return err
-		}
-		_, err = db.Exec("UPDATE entry SET keyword_length = ? WHERE id = ?", int64(utf8.RuneCountInString(e.Keyword)), e.ID)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	_, err := db.Exec(`UPDATE entry e SET keyword_length = CHAR_LENGTH(e.keyword)`)
+	return err
 }
 
 func getEntryByKeyword(kw string) (Entry, error) {
@@ -405,27 +394,47 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		panicIf(err)
 	} else {
 		decEntryNum()
+		updateReplacerWithDelete()
 		// flushAllHTML()
 	}
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
+func initReplacer() {
+	keywords := getKeywordsByDesc()
+	for _, kw := range keywords {
+		kw = regexp.QuoteMeta(kw)
+		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
+		keywordPairList = append(keywordPairList, kw)
+		keywordPairList = append(keywordPairList, kw2sha[kw])
+	}
+}
+
+func removePair(strs []string, search string) []int {
+	result := []string{}
+	count := -1
+	for i, str := range strs {
+		if num == search {
+			count = i + 1
+		}
+		if num != search || i != count {
+			result = append(result, str)
+		}
+	}
+	return result
+}
+
+func updateReplacerWithDelete(keyword) {
+	keywordPairList = removePair(keywordPairList, keyword)
+	delete(kw2sha, keyword)
+	rs = strings.NewReplacer(keywordPairList...)
+}
+
 func htmlify(w http.ResponseWriter, r *http.Request, content string, keywords []string) string {
 	if content == "" {
 		return ""
 	}
-
-	var pairList []string
-	kw2sha := make(map[string]string)
-	for _, kw := range keywords {
-		kw = regexp.QuoteMeta(kw)
-		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
-		pairList = append(pairList, kw)
-		pairList = append(pairList, kw2sha[kw])
-		// keywords = append(keywords, kw)
-	}
-	rs := strings.NewReplacer(pairList...)
 	content = rs.Replace(content)
 	content = html.EscapeString(content)
 	for kw, hash := range kw2sha {
