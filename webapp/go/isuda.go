@@ -18,7 +18,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode/utf8"
 
 	"github.com/Songmu/strrand"
 	_ "github.com/go-sql-driver/mysql"
@@ -307,23 +306,25 @@ func register(user string, pass string) int64 {
 }
 
 func initEntries() error {
-	rows, err := db.Query("SELECT id, keyword FROM entry")
-	if err != nil {
-		return err
-	}
+	_, err := db.Exec(`UPDATE entry SET keyword_length = CHAR_LENGTH(keyword)`)
+	return err
+	// rows, err := db.Query("SELECT id, keyword FROM entry")
+	// if err != nil {
+	// 	return err
+	// }
 
-	for rows.Next() {
-		var e Entry
-		err := rows.Scan(&e.ID, &e.Keyword)
-		if err != nil {
-			return err
-		}
-		_, err = db.Exec("UPDATE entry SET keyword_length = ? WHERE id = ?", int64(utf8.RuneCountInString(e.Keyword)), e.ID)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	// for rows.Next() {
+	// 	var e Entry
+	// 	err := rows.Scan(&e.ID, &e.Keyword)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	_, err = db.Exec("UPDATE entry SET keyword_length = ? WHERE id = ?", int64(utf8.RuneCountInString(e.Keyword)), e.ID)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+	// return nil
 }
 
 func getEntryByKeyword(kw string) (Entry, error) {
