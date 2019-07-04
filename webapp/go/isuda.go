@@ -144,10 +144,11 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		panicIf(err)
 		e.Html = html
-		stars := loadStarsFromCache(e.Keyword)
-		if len(stars) <= 0 {
-			e.Stars = loadStars(e.Keyword)
-		}
+		e.Stars = loadStars(e.Keyword)
+		// stars := loadStarsFromCache(e.Keyword)
+		// if len(stars) <= 0 {
+		// 	e.Stars = loadStars(e.Keyword)
+		// }
 		entries = append(entries, &e)
 	}
 
