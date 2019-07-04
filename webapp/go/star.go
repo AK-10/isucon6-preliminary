@@ -86,15 +86,8 @@ func starsPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	user := r.FormValue("user")
 
-	_, err = db.Exec(`INSERT INTO star (keyword, user_name, created_at) VALUES (?, ?, NOW())`, keyword, user)
-	if err != nil {
-		tx.Rollback()
-		panicIf(err)
-	}
-	if err = tx.Commit(); err != nil {
-		tx.Rollback()
-		panicIf(err)
-	}
+	// _, err = db.Exec(`INSERT INTO star (keyword, user_name, created_at) VALUES (?, ?, NOW())`, keyword, user)
+	// panicIf(err)
 	starCache = append(starCache, Star{Keyword: keyword, UserName: user})
 
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
