@@ -47,7 +47,7 @@ func loadStars(keyword string) []*Star {
 		s := Star{}
 		err := rows.Scan(&s.ID, &s.Keyword, &s.UserName, &s.CreatedAt)
 		panicIf(err)
-		stars = append(starCache, &s)
+		stars = append(stars, &s)
 	}
 	rows.Close()
 	return stars
