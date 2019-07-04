@@ -31,8 +31,6 @@ func flushAllHTML() error {
 	return nil
 }
 
-func setStarWith
-
 func setHTMLOfEntryToRedis(keyword string, html string) error {
 	conn := redisPool.Get()
 	defer conn.Close()
