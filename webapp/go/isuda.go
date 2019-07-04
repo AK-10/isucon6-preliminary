@@ -229,6 +229,7 @@ func keywordPostHandler(w http.ResponseWriter, r *http.Request) {
 	`, userID, keyword, description, userID, keyword, description)
 	if err == nil {
 		incEntryNum()
+		keywordCache = append(keywrod, keywordCache...)
 	}
 	panicIf(err)
 
@@ -350,7 +351,8 @@ func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	keywords := getKeywordsByDesc()
+	// keywords := getKeywordsByDesc()
+	keywords := keywordCache
 	html, err := getHTMLOfEntryfromRedis(e.Keyword)
 	if err == redis.ErrNil {
 		html = htmlify(w, r, e.Description, keywords)
