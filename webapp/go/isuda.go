@@ -53,6 +53,8 @@ var (
 
 	replaceWordPairs = make([]string, 0)
 	kw2sha           = make(map[string]string)
+
+	keywordCache = make([]string, 0)
 )
 
 func setName(w http.ResponseWriter, r *http.Request) error {
@@ -92,6 +94,7 @@ func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	err = initEntries()
 	// panicIf(err)
 	initReplaceWordPairs()
+	initKeywordCache()
 	println("Pairs num:", len(replaceWordPairs))
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
 }
@@ -218,27 +221,16 @@ func keywordPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// tx, err := db.Begin()
-	// panicIf(err)
-
 	_, err := db.Exec(`
 		INSERT INTO entry (author_id, keyword, description, created_at, updated_at)
 		VALUES (?, ?, ?, NOW(), NOW())
 		ON DUPLICATE KEY UPDATE
 		author_id = ?, keyword = ?, description = ?, updated_at = NOW()
 	`, userID, keyword, description, userID, keyword, description)
-	// if err != nil {
-	// 	tx.Rollback()
-	// }
-	// if err = tx.Commit(); err != nil {
-	// 	tx.Rollback()
-	// 	panicIf(err)
-	// } else {
-	// 	incEntryNum()
-	// 	// flushAllHTML()
-	// }
+	if err == nil {
+		incEntryNum()
+	}
 	panicIf(err)
-	incEntryNum()
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
@@ -321,23 +313,20 @@ func register(user string, pass string) int64 {
 func initEntries() error {
 	_, err := db.Exec(`UPDATE entry SET keyword_length = CHAR_LENGTH(keyword)`)
 	return err
-	// rows, err := db.Query("SELECT id, keyword FROM entry")
-	// if err != nil {
-	// 	return err
-	// }
+}
 
-	// for rows.Next() {
-	// 	var e Entry
-	// 	err := rows.Scan(&e.ID, &e.Keyword)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	_, err = db.Exec("UPDATE entry SET keyword_length = ? WHERE id = ?", int64(utf8.RuneCountInString(e.Keyword)), e.ID)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
-	// return nil
+func initKeywordCache() {
+	keywordCache = getKeywordsByDesc()
+}
+
+func initReplaceWordPairs() {
+	keywords := getKeywordsByDesc()
+	for _, kw := range keywords {
+		kw = regexp.QuoteMeta(kw)
+		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
+		replaceWordPairs = append(replaceWordPairs, kw)
+		replaceWordPairs = append(replaceWordPairs, kw2sha[kw])
+	}
 }
 
 func getEntryByKeyword(kw string) (Entry, error) {
@@ -407,33 +396,13 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		notFound(w)
 		return
 	}
-	tx, err := db.Begin()
 	panicIf(err)
 
 	_, err = db.Exec(`DELETE FROM entry WHERE keyword = ?`, keyword)
-	if err != nil {
-		tx.Rollback()
-		panicIf(err)
-	}
-	if err = tx.Commit(); err != nil {
-		tx.Rollback()
-		panicIf(err)
-	} else {
+	if err == nil {
 		decEntryNum()
-		// flushAllHTML()
 	}
-
 	http.Redirect(w, r, "/", http.StatusFound)
-}
-
-func initReplaceWordPairs() {
-	keywords := getKeywordsByDesc()
-	for _, kw := range keywords {
-		kw = regexp.QuoteMeta(kw)
-		kw2sha[kw] = "isuda_" + fmt.Sprintf("%x", sha1.Sum([]byte(kw)))
-		replaceWordPairs = append(replaceWordPairs, kw)
-		replaceWordPairs = append(replaceWordPairs, kw2sha[kw])
-	}
 }
 
 func htmlify(w http.ResponseWriter, r *http.Request, content string, keywords []string) string {
