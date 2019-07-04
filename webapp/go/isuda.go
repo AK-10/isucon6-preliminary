@@ -238,7 +238,7 @@ func keywordPostHandler(w http.ResponseWriter, r *http.Request) {
 	// 	// flushAllHTML()
 	// }
 	panicIf(err)
-	err = incEntryNum()
+	incEntryNum()
 
 	http.Redirect(w, r, "/", http.StatusFound)
 }
