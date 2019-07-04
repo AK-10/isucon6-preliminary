@@ -51,7 +51,7 @@ var (
 
 	errInvalidUser = errors.New("Invalid User")
 
-	keywordPairList = make([]string)
+	keywordPairList = make([]string, 0)
 	kw2sha          = make(map[string]string)
 	rs              = strings.NewReplacer(keywordPairList...)
 )
@@ -411,21 +411,21 @@ func initReplacer() {
 	}
 }
 
-func removePair(strs []string, search string) []int {
+func removePair(strs []string, search string) []string {
 	result := []string{}
 	count := -1
 	for i, str := range strs {
-		if num == search {
+		if str == search {
 			count = i + 1
 		}
-		if num != search || i != count {
+		if str != search || i != count {
 			result = append(result, str)
 		}
 	}
 	return result
 }
 
-func updateReplacerWithDelete(keyword) {
+func updateReplacerWithDelete(keyword string) {
 	keywordPairList = removePair(keywordPairList, keyword)
 	delete(kw2sha, keyword)
 	rs = strings.NewReplacer(keywordPairList...)
