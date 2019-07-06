@@ -122,7 +122,7 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	keywords := getKeywordsByDesc()
+	// keywords := getKeywordsByDesc()
 
 	perPage := 10
 	p := r.URL.Query().Get("page")
@@ -144,12 +144,13 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		e := Entry{}
 		err := rows.Scan(&e.ID, &e.AuthorID, &e.Keyword, &e.Description, &e.UpdatedAt, &e.CreatedAt, &e.KeywordLength)
 		panicIf(err)
-		html, err := getHTMLOfEntryfromRedis(e.Keyword)
-		if err == redis.ErrNil {
-			html = htmlify(w, r, e.Description, keywords)
-			err = setHTMLOfEntryToRedis(e.Keyword, html)
-			panicIf(err)
-		}
+		html := htmlify(w, r, e.Description, keywordCache)
+		// html, err := getHTMLOfEntryfromRedis(e.Keyword)
+		// if err == redis.ErrNil {
+		// 	html = htmlify(w, r, e.Description, keywords)
+		// 	err = setHTMLOfEntryToRedis(e.Keyword, html)
+		// 	panicIf(err)
+		// }
 		panicIf(err)
 		e.Html = html
 		// e.Stars = loadStars(e.Keyword)
@@ -348,12 +349,13 @@ func keywordByKeywordHandler(w http.ResponseWriter, r *http.Request) {
 
 	// keywords := getKeywordsByDesc()
 	keywords := keywordCache
-	html, err := getHTMLOfEntryfromRedis(e.Keyword)
-	if err == redis.ErrNil {
-		html = htmlify(w, r, e.Description, keywords)
-		err = setHTMLOfEntryToRedis(e.Keyword, html)
-		panicIf(err)
-	}
+	html := htmlify(w, r, e.Description, keywords)
+	// html, err := getHTMLOfEntryfromRedis(e.Keyword)
+	// if err == redis.ErrNil {
+	// 	html = htmlify(w, r, e.Description, keywords)
+	// 	err = setHTMLOfEntryToRedis(e.Keyword, html)
+	// 	panicIf(err)
+	// }
 	panicIf(err)
 	e.Html = html
 	e.Stars = loadStarsFromCache(e.Keyword)
