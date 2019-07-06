@@ -398,8 +398,29 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	_, err = db.Exec(`DELETE FROM entry WHERE keyword = ?`, keyword)
 	if err == nil {
 		decEntryNum()
+		deleteKeywordFromCache(keyword)
+		deleteWordPairFromCache(keyword)
 	}
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func deleteKeywordFromCache(keyword string) {
+	for i, k := range keywordCache {
+		if k == keyword {
+			keywordCache = append(keywordCache[:i], keywordCache[i+1:]...)
+		}
+		break
+	}
+}
+
+func deleteWordPairFromCache(keyword string) {
+	for i, k := range keywordCache {
+		if k == keyword {
+			replaceWordPairs = append(replaceWordPairs[:i], replaceWordPairs[i+2:]...)
+			delete(kw2sha, keyword)
+		}
+		break
+	}
 }
 
 func htmlify(w http.ResponseWriter, r *http.Request, content string, keywords []string) string {
