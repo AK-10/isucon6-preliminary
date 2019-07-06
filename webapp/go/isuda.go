@@ -51,10 +51,10 @@ var (
 
 	errInvalidUser = errors.New("Invalid User")
 
-	replaceWordPairs = make([]string, 0)
+	replaceWordPairs = make([]string, 0, 20000)
 	kw2sha           = make(map[string]string)
 
-	keywordCache = make([]string, 0)
+	keywordCache = make([]string, 0, 10000)
 )
 
 func setName(w http.ResponseWriter, r *http.Request) error {
@@ -154,11 +154,6 @@ func topHandler(w http.ResponseWriter, r *http.Request) {
 		e.Html = html
 		// e.Stars = loadStars(e.Keyword)
 		e.Stars = loadStarsFromCache(e.Keyword)
-		// if len(stars) <= 0 {
-		// 	e.Stars = loadStars(e.Keyword)
-		// } else {
-		// 	e.Stars = stars
-		// }
 		entries = append(entries, &e)
 	}
 
