@@ -17,7 +17,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/Songmu/strrand"
 	_ "github.com/go-sql-driver/mysql"
@@ -42,12 +41,12 @@ var (
 	re      *render.Render
 	store   *sessions.CookieStore
 
-	redisPool = &redis.Pool{
-		MaxIdle:     3,
-		MaxActive:   0,
-		IdleTimeout: 5 * time.Minute,
-		Dial:        func() (redis.Conn, error) { return redis.Dial("tcp", "127.0.0.1:6379") },
-	}
+	// redisPool = &redis.Pool{
+	// 	MaxIdle:     3,
+	// 	MaxActive:   0,
+	// 	IdleTimeout: 5 * time.Minute,
+	// 	Dial:        func() (redis.Conn, error) { return redis.Dial("tcp", "127.0.0.1:6379") },
+	// }
 
 	errInvalidUser = errors.New("Invalid User")
 
@@ -85,9 +84,18 @@ func authenticate(w http.ResponseWriter, r *http.Request) error {
 func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := db.Exec(`DELETE FROM entry WHERE id > 7101`)
 	panicIf(err)
-	err = flushAllHTML()
-	err = setEntryNumToRedis(7101)
-	// panicIf(err)
+	var redisful *Redisful
+	defer redisful.Close()
+	for {
+		redisful, err = NewRedisful()
+		if err == nil {
+			break
+		}
+	}
+	err = redisful.FLUSH_ALL()
+	panicIf(err)
+	err = redisful.setEntryNumToRedis(7101)
+	panicIf(err)
 	err = initializeStar()
 	// panicIf(err)
 	err = initEntries()
@@ -409,6 +417,7 @@ func keywordByKeywordDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func initReplacer() {
+
 	keywords := getKeywordsByDesc()
 	for _, kw := range keywords {
 		kw = regexp.QuoteMeta(kw)

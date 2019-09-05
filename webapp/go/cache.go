@@ -12,7 +12,7 @@ const (
 	// starPrefix = "STAR-"
 )
 
-func flushAllHTML() error {
+func flushAll() error {
 	conn := redisPool.Get()
 	defer conn.Close()
 	entryNum, err := getEntryNumFromRedis()
@@ -79,4 +79,9 @@ func decEntryNum() {
 	panicIf(err)
 	_, err = conn.Do("SET", entryNumKey, strconv.FormatInt(num-1, 10))
 	panicIf(err)
+}
+
+func (r *Redisful) setEntryNumToRedis(int64 num) {
+	_, err := r.Conn.Do("SET", entryNumKey, strconv.FormatInt(num, 10))
+	return err
 }
