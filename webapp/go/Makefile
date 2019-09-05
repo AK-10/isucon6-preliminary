@@ -9,10 +9,10 @@ deps:
 	go get github.com/gomodule/redigo/redis
 merged: 
 	#deps
-	go build -o isuda isuda.go star.go type.go util.go cache.go
+	go build -o isuda isuda.go star.go type.go util.go cache.go redisful.go
 
 isuda: deps
-	go build -o isuda isuda.go type.go util.go
+	go build -o isuda isuda.go type.go util.go redisful.go
 
 isutar: deps
 	go build -o isutar isutar.go type.go util.go
