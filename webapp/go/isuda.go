@@ -17,6 +17,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Songmu/strrand"
 	_ "github.com/go-sql-driver/mysql"
@@ -41,12 +42,12 @@ var (
 	re      *render.Render
 	store   *sessions.CookieStore
 
-	// redisPool = &redis.Pool{
-	// 	MaxIdle:     3,
-	// 	MaxActive:   0,
-	// 	IdleTimeout: 5 * time.Minute,
-	// 	Dial:        func() (redis.Conn, error) { return redis.Dial("tcp", "127.0.0.1:6379") },
-	// }
+	redisPool = &redis.Pool{
+		MaxIdle:     3,
+		MaxActive:   0,
+		IdleTimeout: 5 * time.Minute,
+		Dial:        func() (redis.Conn, error) { return redis.Dial("tcp", "127.0.0.1:6379") },
+	}
 
 	errInvalidUser = errors.New("Invalid User")
 
