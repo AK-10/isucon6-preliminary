@@ -82,6 +82,7 @@ func authenticate(w http.ResponseWriter, r *http.Request) error {
 func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := db.Exec(`DELETE FROM entry WHERE id > 7101`)
 	panicIf(err)
+	err = flushAllHTML()
 	err = setEntryNumToRedis(7101)
 	// panicIf(err)
 	err = initializeStar()
