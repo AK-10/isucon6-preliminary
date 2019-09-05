@@ -90,8 +90,10 @@ func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		redisful, err = NewRedisful()
 		if err == nil {
+			log.Println("connection establised!")
 			break
 		}
+		log.Println("connection failed...")
 	}
 	err = redisful.FLUSH_ALL()
 	panicIf(err)
