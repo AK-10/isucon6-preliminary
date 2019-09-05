@@ -81,7 +81,7 @@ func decEntryNum() {
 	panicIf(err)
 }
 
-func (r *Redisful) setEntryNumToRedis(int64 num) error {
+func (r *Redisful) setEntryNumToRedis(num int64) error {
 	_, err := r.Conn.Do("SET", entryNumKey, strconv.FormatInt(num, 10))
 	return err
 }
