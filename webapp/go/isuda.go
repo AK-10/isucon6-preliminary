@@ -78,13 +78,16 @@ func initializeHandler(w http.ResponseWriter, r *http.Request) {
 	defer resp.Body.Close()
 
 	var r *Redisful
+	defer r.Close()
 	for {
 		r, err = NewRedisful()
 		if err == nil {
 			log.Println("redis: connection established!")
+			break
 		}
 		log.Println("redis: connection refused...")
 	}
+	err = r.FLUSH_ALL()
 
 	re.JSON(w, http.StatusOK, map[string]string{"result": "ok"})
 }
